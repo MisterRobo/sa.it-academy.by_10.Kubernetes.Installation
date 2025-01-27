@@ -26,12 +26,12 @@ jobs:
         proxy_password: ${{ secrets.JUMP_PASSWD }}
         script: |
             FAILED_PODS=$(kubectl get pods -A | grep -v NAME | grep -v Running | awk '{ print $2 }')
-
+            
             if [ -n "$FAILED_PODS" ]; then
-              echo "::set-output name=has_errors::true"
-              echo "Failed Pods: $FAILED_PODS"
+              echo "has_errors=true" >> $GITHUB_OUTPUT
+              echo "FAILED_PODS=$FAILED_PODS" >> $GITHUB_OUTPUT
             else
-              echo "::set-output name=has_errors::false"
+              echo "has_errors=false" >> $GITHUB_OUTPUT
             fi
 
     - name: Send Slack notification
