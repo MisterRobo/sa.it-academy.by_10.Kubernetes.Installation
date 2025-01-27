@@ -26,6 +26,7 @@ jobs:
 
     - name: ssh commands using password
       uses: appleboy/ssh-action@v1.2.0
+      id: check-pods
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
