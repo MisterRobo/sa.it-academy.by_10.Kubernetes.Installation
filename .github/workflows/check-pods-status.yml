@@ -1,0 +1,61 @@
+name: Check Pods Status
+
+on:
+#  schedule:
+#    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  check-pods:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v4
+      with:
+        version: 'latest'
+
+    - name: Configure kubeconfig
+      run: |
+        echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig.yaml
+        export KUBECONFIG=kubeconfig.yaml
+
+
+    - name: ssh commands using password
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWD }}
+        proxy_host: ${{ secrets.JUMP_HOST }}
+        proxy_port: ${{ secrets.JUMP_PORT }}
+        proxy_username: ${{ secrets.JUMP_USERNAME }}
+        proxy_password: ${{ secrets.JUMP_PASSWD }}
+        script: FAILED_PODS=$(kubectl get pods -A | grep -v NAME | grep -v Running | awk '{ print $2 }')
+
+
+    # - name: Check pods status
+    #   id: check-pods
+    #   run: |
+    #     # Получаем список подов с ошибками
+    #     FAILED_PODS=$(kubectl get pods --field-selector=status.phase=Failed -o jsonpath='{.items[*].metadata.name}')
+    #     CRASHED_PODS=$(kubectl get pods --field-selector=status.phase=Running -o jsonpath='{.items[?(@.status.containerStatuses[*].state.waiting.reason=="CrashLoopBackOff")].metadata.name}')
+
+    #     if [ -n "$FAILED_PODS" ] || [ -n "$CRASHED_PODS" ]; then
+    #       echo "::set-output name=has_errors::true"
+    #       echo "Failed Pods: $FAILED_PODS"
+    #       echo "Crashed Pods: $CRASHED_PODS"
+    #     else
+    #       echo "::set-output name=has_errors::false"
+    #     fi
+
+    - name: Send Slack notification
+      if: steps.check-pods.outputs.has_errors == 'true'
+      uses: slackapi/slack-github-action@v1
+      with:
+        slack-message: '🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.check-pods.outputs.FAILED_PODS }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
