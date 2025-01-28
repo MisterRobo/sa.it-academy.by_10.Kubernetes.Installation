@@ -33,6 +33,8 @@ jobs:
             else
               echo "has_errors=false" >> $GITHUB_OUTPUT
             fi
+            echo "GITHUB_OUTPUT: $GITHUB_OUTPUT"
+            echo "FAILED_PODS: $FAILED_PODS"
 
     - name: Send Slack notification
       if: steps.check-pods.outputs.has_errors == 'true'
