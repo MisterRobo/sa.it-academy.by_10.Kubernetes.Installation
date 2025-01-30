@@ -54,6 +54,10 @@ jobs:
     - name: Send Slack notification
       uses: slackapi/slack-github-action@v2.0.0
       with:
-        slack-message: '🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.check-pods.outputs.GITHUB_OUTPUT }}'
+        webhook-type: INCOMING_WEBHOOK
+        payload: |
+          {
+            "text": "🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.output.outputs.GITHUB_OUTPUT }}"
+          }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
