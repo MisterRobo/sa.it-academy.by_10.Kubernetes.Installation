@@ -23,23 +23,36 @@ jobs:
         proxy_host: ${{ secrets.JUMP_HOST }}
         proxy_port: ${{ secrets.JUMP_PORT }}
         proxy_username: ${{ secrets.JUMP_USERNAME }}
-        proxy_password: ${{ secrets.JUMP_PASSWD }}
+        proxy_password: ${{ secrets.JUMP_PASSWD }}        
         script: |
-            FAILED_PODS=$(kubectl get pods -A | grep -v NAME | grep -v Running | awk '{ print $2 }')
-            
-            if [ -n "$FAILED_PODS" ]; then
-              echo "has_errors=true" >> $GITHUB_OUTPUT
-              echo "FAILED_PODS=$FAILED_PODS" >> $GITHUB_OUTPUT
-            else
-              echo "has_errors=false" >> $GITHUB_OUTPUT
-            fi
-            echo "GITHUB_OUTPUT: $GITHUB_OUTPUT"
-            echo "FAILED_PODS: $FAILED_PODS"
+            kubectl get pods -A | grep -v NAME | grep -v Running | awk '{ print $2 }' > /tmp/fldpods.txt
+      
+    - name: Copy fldpods file
+      uses: nicklasfrahm/scp-action@main
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        password: ${{ secrets.PASSWD }}
+        proxy_host: ${{ secrets.JUMP_HOST }}
+        proxy_port: ${{ secrets.JUMP_PORT }}
+        proxy_username: ${{ secrets.JUMP_USERNAME }}
+        proxy_password: ${{ secrets.JUMP_PASSWD }}
+        insecure_proxy_ignore_fingerprint: true
+        proxy_fingerprint: true
+        source: "/tmp/fldpods.txt"
+        target: "./failed_pods.txt"
+
+    - name: outut var
+      id: output
+      run: |
+        OUTPUTRES=$(cat failed_pods.txt)
+        echo $OUTPUTRES >> $GITHUB_OUTPUT
+        echo $GITHUB_OUTPUT
 
     - name: Send Slack notification
       if: steps.check-pods.outputs.has_errors == 'true'
       uses: slackapi/slack-github-action@v2.0.0
       with:
-        slack-message: '🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.check-pods.outputs.FAILED_PODS }}'
+        slack-message: '🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.check-pods.outputs.GITHUB_OUTPUT }}'
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
