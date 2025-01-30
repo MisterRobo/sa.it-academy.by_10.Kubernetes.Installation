@@ -39,6 +39,7 @@ jobs:
         proxy_username: ${{ secrets.JUMP_USERNAME }}
         insecure_proxy_password: ${{ secrets.JUMP_PASSWD }}
         insecure_proxy_ignore_fingerprint: true
+        insecure_ignore_fingerprint: true
         proxy_fingerprint: true
         source: "/tmp/fldpods.txt"
         target: "./failed_pods.txt"
