@@ -33,11 +33,11 @@ jobs:
         direction: download
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWD }}
+        insecure_password: ${{ secrets.PASSWD }}
         proxy_host: ${{ secrets.JUMP_HOST }}
         proxy_port: ${{ secrets.JUMP_PORT }}
         proxy_username: ${{ secrets.JUMP_USERNAME }}
-        proxy_password: ${{ secrets.JUMP_PASSWD }}
+        insecure_proxy_password: ${{ secrets.JUMP_PASSWD }}
         insecure_proxy_ignore_fingerprint: true
         proxy_fingerprint: true
         source: "/tmp/fldpods.txt"
