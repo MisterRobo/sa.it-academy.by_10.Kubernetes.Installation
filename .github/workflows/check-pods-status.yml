@@ -52,12 +52,11 @@ jobs:
         echo $GITHUB_OUTPUT
 
     - name: Send Slack notification
-      uses: slackapi/slack-github-action@v2.0.0
-      with:
-        webhook-type: INCOMING_WEBHOOK
-        payload: |
-          {
-            "text": "🚨 Внимание! Обнаружены упавшие или завершившиеся с ошибкой поды: ${{ steps.output.outputs.GITHUB_OUTPUT }}"
-          }
+      uses: rtCamp/action-slack-notify@v2
       env:
+        SLACK_COLOR: failure
+        SLACK_MESSAGE: "List of fallen pods: ${{ steps.result.outputs.GITHUB_OUTPUT }}"
+        SLACK_TITLE: Some pods have failed
+        SLACK_USERNAME: K8s
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
