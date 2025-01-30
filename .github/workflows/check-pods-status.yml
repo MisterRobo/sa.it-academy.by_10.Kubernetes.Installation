@@ -30,6 +30,7 @@ jobs:
     - name: Copy fldpods file
       uses: nicklasfrahm/scp-action@main
       with:
+        direction: download
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         password: ${{ secrets.PASSWD }}
