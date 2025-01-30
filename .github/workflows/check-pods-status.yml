@@ -59,4 +59,3 @@ jobs:
         SLACK_TITLE: Some pods have failed
         SLACK_USERNAME: K8s
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
